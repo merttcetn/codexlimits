@@ -1,0 +1,79 @@
+name: CodexLimits
+options:
+  bundleIdPrefix: com.mertcetin
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    CODE_SIGN_STYLE: Automatic
+    CURRENT_PROJECT_VERSION: 1
+    MARKETING_VERSION: 1.0.0
+    DEAD_CODE_STRIPPING: YES
+targets:
+  CodexLimits:
+    type: application
+    platform: macOS
+    sources:
+      - path: Shared
+      - path: Core
+      - path: CodexLimitsApp
+    dependencies:
+      - target: CodexLimitsWidget
+        embed: true
+    entitlements:
+      path: CodexLimitsApp/CodexLimits.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.mertcetin.codexlimits
+    info:
+      path: CodexLimitsApp/Info.plist
+      properties:
+        CFBundleDisplayName: Codex Limits
+        LSApplicationCategoryType: public.app-category.developer-tools
+        LSUIElement: true
+        NSHumanReadableCopyright: "Copyright © 2026 Mert Cetin"
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mertcetin.codexlimits
+        PRODUCT_NAME: Codex Limits
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: YES
+  CodexLimitsWidget:
+    type: app-extension
+    platform: macOS
+    sources:
+      - path: Shared
+      - path: CodexLimitsWidget
+    entitlements:
+      path: CodexLimitsWidget/CodexLimitsWidget.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups:
+          - group.com.mertcetin.codexlimits
+    info:
+      path: CodexLimitsWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Codex Limits Widget
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mertcetin.codexlimits.widget
+        PRODUCT_NAME: Codex Limits Widget
+        ENABLE_APP_SANDBOX: YES
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+  CodexLimitsTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Shared
+      - path: Core
+      - path: Tests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.mertcetin.codexlimits.tests
+        GENERATE_INFOPLIST_FILE: YES

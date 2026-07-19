@@ -1,0 +1,605 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		250AD48297D6F88B50D1CE8B /* MenuPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEECF74410981A80A196515F /* MenuPanelView.swift */; };
+		26D0719972AAEBADA28D4BBD /* Codex Limits Widget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 005D44DA7A79F2BD32493C1C /* Codex Limits Widget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		2BE87D9757E3E5E44A99696A /* CodexLimitsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50EC1C6F7AF5D3C2FD1F99E2 /* CodexLimitsApp.swift */; };
+		32DE44DD6C87BCC94EA6E572 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A0A74946463B540F63E7E5A /* SettingsView.swift */; };
+		39A4D7DA863CD9F13FABE075 /* CodexLimitsWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70DBF993D38D27C842CD1441 /* CodexLimitsWidget.swift */; };
+		3E0EA8ED8424C142836A9EB5 /* SnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A641738BEE9397E1379B216 /* SnapshotStore.swift */; };
+		3FFA63596E201FFF51DDD98D /* LimitVisuals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F07B5A75C0AC0A621DC1045 /* LimitVisuals.swift */; };
+		51289C22865A2344E5C51DA8 /* CodexLimitsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BDF18D8B7474199A1EC90AF /* CodexLimitsTests.swift */; };
+		5A5E1BEB6C73316C47961C98 /* LimitModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F871DA3C50629E3B8FE7F0 /* LimitModels.swift */; };
+		61BD9A215790649047AB4C46 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F74A9FF7F0F13B48E502DE28 /* AppModel.swift */; };
+		7A6CDBB7B68094CF87A620BF /* LimitVisuals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F07B5A75C0AC0A621DC1045 /* LimitVisuals.swift */; };
+		822FFDF512F619119DCB5874 /* CodexAppServerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D03B5941082C141E3F75708 /* CodexAppServerClient.swift */; };
+		849E955DE1A270B0D34F53AB /* SnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A641738BEE9397E1379B216 /* SnapshotStore.swift */; };
+		98DEB8E1D8C0CB47A3279525 /* CodexAppServerClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D03B5941082C141E3F75708 /* CodexAppServerClient.swift */; };
+		D124912EA8783AFC3427A520 /* LimitModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F871DA3C50629E3B8FE7F0 /* LimitModels.swift */; };
+		D81B742C002FA2D4E1946ECC /* LimitVisuals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F07B5A75C0AC0A621DC1045 /* LimitVisuals.swift */; };
+		E56DD578698C24A251E7288A /* SnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A641738BEE9397E1379B216 /* SnapshotStore.swift */; };
+		EB5B09EE82E24F3D5590F0A8 /* LimitModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F871DA3C50629E3B8FE7F0 /* LimitModels.swift */; };
+		FACBDFFE0A4B05CF5B5E5B27 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 59567F7AE90E2EFF72C7B25C /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C1ACB753250040693D2CB253 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A199FF53E7AEBFED75E8DA87 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9284B75C01E32F1053348E9D;
+			remoteInfo = CodexLimitsWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B97DED3978D843E06076A8EF /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				26D0719972AAEBADA28D4BBD /* Codex Limits Widget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		005D44DA7A79F2BD32493C1C /* Codex Limits Widget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Codex Limits Widget.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		1BDF18D8B7474199A1EC90AF /* CodexLimitsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexLimitsTests.swift; sourceTree = "<group>"; };
+		2A0A74946463B540F63E7E5A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		36FB210D24FBA88F7FC8343A /* CodexLimits.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CodexLimits.entitlements; sourceTree = "<group>"; };
+		4D03B5941082C141E3F75708 /* CodexAppServerClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexAppServerClient.swift; sourceTree = "<group>"; };
+		4F07B5A75C0AC0A621DC1045 /* LimitVisuals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitVisuals.swift; sourceTree = "<group>"; };
+		50EC1C6F7AF5D3C2FD1F99E2 /* CodexLimitsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexLimitsApp.swift; sourceTree = "<group>"; };
+		575CD56F466412862081AE71 /* CodexLimitsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CodexLimitsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		59567F7AE90E2EFF72C7B25C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		62F871DA3C50629E3B8FE7F0 /* LimitModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LimitModels.swift; sourceTree = "<group>"; };
+		6A641738BEE9397E1379B216 /* SnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotStore.swift; sourceTree = "<group>"; };
+		70DBF993D38D27C842CD1441 /* CodexLimitsWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodexLimitsWidget.swift; sourceTree = "<group>"; };
+		79E0C6A4C8CA26CE526E8E58 /* CodexLimitsWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CodexLimitsWidget.entitlements; sourceTree = "<group>"; };
+		AEECF74410981A80A196515F /* MenuPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuPanelView.swift; sourceTree = "<group>"; };
+		B349DAA576EDBE1DB22ABF44 /* Codex Limits.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Codex Limits.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C177EEEF33D54DC7990E72B3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F43BB0133F9BEA1877ED9734 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F74A9FF7F0F13B48E502DE28 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0CBED0AD57FB98CCB1EFA6AA /* CodexLimitsWidget */ = {
+			isa = PBXGroup;
+			children = (
+				79E0C6A4C8CA26CE526E8E58 /* CodexLimitsWidget.entitlements */,
+				70DBF993D38D27C842CD1441 /* CodexLimitsWidget.swift */,
+				C177EEEF33D54DC7990E72B3 /* Info.plist */,
+			);
+			path = CodexLimitsWidget;
+			sourceTree = "<group>";
+		};
+		0D60F81099D422834809E356 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B349DAA576EDBE1DB22ABF44 /* Codex Limits.app */,
+				575CD56F466412862081AE71 /* CodexLimitsTests.xctest */,
+				005D44DA7A79F2BD32493C1C /* Codex Limits Widget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0FB0EC8D7FA04B50FE96E869 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				4D03B5941082C141E3F75708 /* CodexAppServerClient.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		19DB8457553F8CD7D7B7637E /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				62F871DA3C50629E3B8FE7F0 /* LimitModels.swift */,
+				4F07B5A75C0AC0A621DC1045 /* LimitVisuals.swift */,
+				6A641738BEE9397E1379B216 /* SnapshotStore.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		1F34617400C7790B5A5ABBA7 = {
+			isa = PBXGroup;
+			children = (
+				51CBFB114C2BE85A2D06E522 /* CodexLimitsApp */,
+				0CBED0AD57FB98CCB1EFA6AA /* CodexLimitsWidget */,
+				0FB0EC8D7FA04B50FE96E869 /* Core */,
+				19DB8457553F8CD7D7B7637E /* Shared */,
+				43169D51DBA497D0214845AA /* Tests */,
+				0D60F81099D422834809E356 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		43169D51DBA497D0214845AA /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				1BDF18D8B7474199A1EC90AF /* CodexLimitsTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		51CBFB114C2BE85A2D06E522 /* CodexLimitsApp */ = {
+			isa = PBXGroup;
+			children = (
+				F74A9FF7F0F13B48E502DE28 /* AppModel.swift */,
+				59567F7AE90E2EFF72C7B25C /* Assets.xcassets */,
+				36FB210D24FBA88F7FC8343A /* CodexLimits.entitlements */,
+				50EC1C6F7AF5D3C2FD1F99E2 /* CodexLimitsApp.swift */,
+				F43BB0133F9BEA1877ED9734 /* Info.plist */,
+				AEECF74410981A80A196515F /* MenuPanelView.swift */,
+				2A0A74946463B540F63E7E5A /* SettingsView.swift */,
+			);
+			path = CodexLimitsApp;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4F1231AE8F19EFE7BC282DFC /* CodexLimitsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0DD628376132B4BD36AB3A7F /* Build configuration list for PBXNativeTarget "CodexLimitsTests" */;
+			buildPhases = (
+				C6734C5A2491F49142727722 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CodexLimitsTests;
+			packageProductDependencies = (
+			);
+			productName = CodexLimitsTests;
+			productReference = 575CD56F466412862081AE71 /* CodexLimitsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		9284B75C01E32F1053348E9D /* CodexLimitsWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D3AC984C827325C4DC99A8E2 /* Build configuration list for PBXNativeTarget "CodexLimitsWidget" */;
+			buildPhases = (
+				FC83A2D7F530003299344FB1 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CodexLimitsWidget;
+			packageProductDependencies = (
+			);
+			productName = CodexLimitsWidget;
+			productReference = 005D44DA7A79F2BD32493C1C /* Codex Limits Widget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		C67C6C9E7006A8663C099627 /* CodexLimits */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4A636A1E6B613125F16C28D /* Build configuration list for PBXNativeTarget "CodexLimits" */;
+			buildPhases = (
+				8885F1FDAB97C1E729DDAC1D /* Sources */,
+				A0240ACEFFC73D8887154C38 /* Resources */,
+				B97DED3978D843E06076A8EF /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				0BCCEC6DB873972DB6692E78 /* PBXTargetDependency */,
+			);
+			name = CodexLimits;
+			packageProductDependencies = (
+			);
+			productName = CodexLimits;
+			productReference = B349DAA576EDBE1DB22ABF44 /* Codex Limits.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A199FF53E7AEBFED75E8DA87 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2630;
+				TargetAttributes = {
+					4F1231AE8F19EFE7BC282DFC = {
+						ProvisioningStyle = Automatic;
+					};
+					9284B75C01E32F1053348E9D = {
+						ProvisioningStyle = Automatic;
+					};
+					C67C6C9E7006A8663C099627 = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 738D8F42F18321D92229C854 /* Build configuration list for PBXProject "CodexLimits" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 1F34617400C7790B5A5ABBA7;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 0D60F81099D422834809E356 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C67C6C9E7006A8663C099627 /* CodexLimits */,
+				9284B75C01E32F1053348E9D /* CodexLimitsWidget */,
+				4F1231AE8F19EFE7BC282DFC /* CodexLimitsTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A0240ACEFFC73D8887154C38 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACBDFFE0A4B05CF5B5E5B27 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8885F1FDAB97C1E729DDAC1D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				61BD9A215790649047AB4C46 /* AppModel.swift in Sources */,
+				98DEB8E1D8C0CB47A3279525 /* CodexAppServerClient.swift in Sources */,
+				2BE87D9757E3E5E44A99696A /* CodexLimitsApp.swift in Sources */,
+				5A5E1BEB6C73316C47961C98 /* LimitModels.swift in Sources */,
+				7A6CDBB7B68094CF87A620BF /* LimitVisuals.swift in Sources */,
+				250AD48297D6F88B50D1CE8B /* MenuPanelView.swift in Sources */,
+				32DE44DD6C87BCC94EA6E572 /* SettingsView.swift in Sources */,
+				E56DD578698C24A251E7288A /* SnapshotStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C6734C5A2491F49142727722 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				822FFDF512F619119DCB5874 /* CodexAppServerClient.swift in Sources */,
+				51289C22865A2344E5C51DA8 /* CodexLimitsTests.swift in Sources */,
+				EB5B09EE82E24F3D5590F0A8 /* LimitModels.swift in Sources */,
+				3FFA63596E201FFF51DDD98D /* LimitVisuals.swift in Sources */,
+				3E0EA8ED8424C142836A9EB5 /* SnapshotStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FC83A2D7F530003299344FB1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				39A4D7DA863CD9F13FABE075 /* CodexLimitsWidget.swift in Sources */,
+				D124912EA8783AFC3427A520 /* LimitModels.swift in Sources */,
+				D81B742C002FA2D4E1946ECC /* LimitVisuals.swift in Sources */,
+				849E955DE1A270B0D34F53AB /* SnapshotStore.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		0BCCEC6DB873972DB6692E78 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9284B75C01E32F1053348E9D /* CodexLimitsWidget */;
+			targetProxy = C1ACB753250040693D2CB253 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1569C1DCF3EEDEAF637B667D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = CodexLimitsApp/CodexLimits.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 33GU78SA3S;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = CodexLimitsApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mertcetin.codexlimits;
+				PRODUCT_NAME = "Codex Limits";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		2C610D2A8CA8C487ED64CF1F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = CodexLimitsWidget/CodexLimitsWidget.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 33GU78SA3S;
+				ENABLE_APP_SANDBOX = YES;
+				INFOPLIST_FILE = CodexLimitsWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mertcetin.codexlimits.widget;
+				PRODUCT_NAME = "Codex Limits Widget";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+		2E3F88E19D6AD1725ADD94C5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		89A2FD8635B5D3785DA68778 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = CodexLimitsApp/CodexLimits.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 33GU78SA3S;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = CodexLimitsApp/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mertcetin.codexlimits;
+				PRODUCT_NAME = "Codex Limits";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A49439DCB5852C820623F51D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 33GU78SA3S;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mertcetin.codexlimits.tests;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		A51071E242D546AD4E4703D2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = CodexLimitsWidget/CodexLimitsWidget.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 33GU78SA3S;
+				ENABLE_APP_SANDBOX = YES;
+				INFOPLIST_FILE = CodexLimitsWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mertcetin.codexlimits.widget;
+				PRODUCT_NAME = "Codex Limits Widget";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		C1B1E7B386084C1F257B2F78 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 33GU78SA3S;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.mertcetin.codexlimits.tests;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		ED9D6062A5B6659895BFFE1B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0DD628376132B4BD36AB3A7F /* Build configuration list for PBXNativeTarget "CodexLimitsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A49439DCB5852C820623F51D /* Debug */,
+				C1B1E7B386084C1F257B2F78 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		738D8F42F18321D92229C854 /* Build configuration list for PBXProject "CodexLimits" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ED9D6062A5B6659895BFFE1B /* Debug */,
+				2E3F88E19D6AD1725ADD94C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D3AC984C827325C4DC99A8E2 /* Build configuration list for PBXNativeTarget "CodexLimitsWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A51071E242D546AD4E4703D2 /* Debug */,
+				2C610D2A8CA8C487ED64CF1F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F4A636A1E6B613125F16C28D /* Build configuration list for PBXNativeTarget "CodexLimits" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				89A2FD8635B5D3785DA68778 /* Debug */,
+				1569C1DCF3EEDEAF637B667D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A199FF53E7AEBFED75E8DA87 /* Project object */;
+}
