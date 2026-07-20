@@ -20,6 +20,8 @@ let package = Package(
                 "Tools",
                 "Tests",
                 "README.md",
+                "AGENTS.md",
+                "FEEDBACK.md",
                 "project.yml"
             ],
             sources: [

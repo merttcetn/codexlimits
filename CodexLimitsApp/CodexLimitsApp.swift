@@ -37,11 +37,11 @@ private struct MenuBarStatusIcon: View {
     let remaining: Int?
 
     var body: some View {
-        Image(systemName: "chart.bar.fill")
+        Image(systemName: "terminal.fill")
             .symbolRenderingMode(.monochrome)
             .imageScale(.medium)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(accessibilityLabel)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilityLabel)
     }
 
     private var accessibilityLabel: String {

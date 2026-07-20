@@ -4,3 +4,6 @@ DerivedData/
 *.xcuserstate
 xcuserdata/
 
+# Keep the project README, but ignore other Markdown notes and artifacts.
+*.md
+!README.md
