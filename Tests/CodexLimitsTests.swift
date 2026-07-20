@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 #if SWIFT_PACKAGE
 @testable import CodexLimitsCore
@@ -73,6 +74,119 @@ struct CodexLimitsTests {
         #expect(firstExpiration < secondExpiration)
     }
 
+    @Test("App-server usage response normalizes daily buckets")
+    func appServerUsageResponseNormalizesBuckets() throws {
+        let json = #"""
+        {
+          "id": 3,
+          "result": {
+            "dailyUsageBuckets": [
+              {"startDate": "2026-07-19", "tokens": 800000},
+              {"startDate": "2026-07-18", "tokens": -5},
+              {"startDate": "2026-07-19", "tokens": 1200000}
+            ],
+            "summary": {
+              "currentStreakDays": 4,
+              "lifetimeTokens": 9500000,
+              "longestRunningTurnSec": 920,
+              "longestStreakDays": 12,
+              "peakDailyTokens": 1600000
+            }
+          }
+        }
+        """#
+
+        let usage = try CodexAppServerClient.decodeUsageResponseJSON(json)
+
+        #expect(usage.dailyUsageBuckets.map(\.startDate) == ["2026-07-18", "2026-07-19"])
+        #expect(usage.dailyUsageBuckets.map(\.tokens) == [0, 1_200_000])
+        #expect(usage.summary.currentStreakDays == 4)
+        #expect(usage.summary.peakDailyTokens == 1_600_000)
+    }
+
+    @Test("Usage weeks fill missing dates and calculate contextual summaries")
+    func usageWeeksAreCalendarAligned() throws {
+        let calendar = testCalendar
+        let now = try #require(calendar.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 15)))
+        let usage = CodexUsageSnapshot(
+            fetchedAt: now,
+            dailyUsageBuckets: [
+                CodexUsageDay(startDate: "2026-07-13", tokens: 100),
+                CodexUsageDay(startDate: "2026-07-15", tokens: 300),
+                CodexUsageDay(startDate: "2026-07-19", tokens: 200),
+                CodexUsageDay(startDate: "2026-07-20", tokens: 450)
+            ],
+            summary: usageSummary(streak: 6)
+        )
+
+        let current = try #require(usage.week(offset: 0, calendar: calendar, now: now))
+        #expect(current.todayTokens == 450)
+        #expect(current.currentStreakDays == 6)
+        #expect(current.days.count == 7)
+
+        let previous = try #require(usage.week(offset: -1, calendar: calendar, now: now))
+        #expect(previous.days.map(\.tokens) == [100, 0, 300, 0, 0, 0, 200])
+        #expect(previous.totalTokens == 600)
+        #expect(previous.peakTokens == 300)
+        #expect(previous.rangeLabel(locale: Locale(identifier: "en_US_POSIX"), calendar: calendar) == "JUL 13–19")
+        #expect(usage.earliestWeekOffset(calendar: calendar, now: now) == -1)
+    }
+
+    @Test("Usage week navigation clamps to available history")
+    func usageWeekNavigationClampsToHistory() throws {
+        let calendar = testCalendar
+        let now = try #require(calendar.date(from: DateComponents(year: 2026, month: 7, day: 20, hour: 15)))
+        let account = CodexAccountSnapshot(
+            id: "usage",
+            name: "Usage",
+            email: nil,
+            limits: .preview,
+            usage: CodexUsageSnapshot(
+                fetchedAt: now,
+                dailyUsageBuckets: [CodexUsageDay(startDate: "2026-07-06", tokens: 100)],
+                summary: usageSummary(streak: 1)
+            ),
+            errorMessage: nil
+        )
+        let dashboard = CodexDashboardSnapshot(updatedAt: now, accounts: [account])
+
+        #expect(dashboard.clampedUsageWeekOffset(2, calendar: calendar, now: now) == 0)
+        #expect(dashboard.clampedUsageWeekOffset(-1, calendar: calendar, now: now) == -1)
+        #expect(dashboard.clampedUsageWeekOffset(-20, calendar: calendar, now: now) == -2)
+    }
+
+    @Test("Snapshots without usage remain decodable")
+    func legacyDashboardDecodesWithoutUsage() throws {
+        let json = #"""
+        {
+          "updatedAt": 0,
+          "accounts": [
+            {
+              "id": "default",
+              "name": "Default",
+              "email": null,
+              "limits": null,
+              "errorMessage": null
+            }
+          ]
+        }
+        """#
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .secondsSince1970
+
+        let dashboard = try decoder.decode(CodexDashboardSnapshot.self, from: Data(json.utf8))
+        #expect(dashboard.accounts.first?.usage == nil)
+    }
+
+    @Test("Token counts use compact readable labels")
+    func tokenCountsFormatCompactly() {
+        let locale = Locale(identifier: "en_US_POSIX")
+        #expect(CodexUsageFormatting.compactTokens(845, locale: locale) == "845")
+        #expect(CodexUsageFormatting.compactTokens(12_400, locale: locale) == "12K")
+        #expect(CodexUsageFormatting.compactTokens(1_240_000, locale: locale) == "1.2M")
+        #expect(CodexUsageFormatting.tokenLabel(1_240_000, locale: locale) == "1.2M TOKENS")
+    }
+
     private func account(id: String, remaining: [Int]) -> CodexAccountSnapshot {
         CodexAccountSnapshot(
             id: id,
@@ -94,6 +208,24 @@ struct CodexLimitsTests {
                 resetCredits: []
             ),
             errorMessage: nil
+        )
+    }
+
+    private var testCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.locale = Locale(identifier: "en_US_POSIX")
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+        calendar.firstWeekday = 2
+        return calendar
+    }
+
+    private func usageSummary(streak: Int64) -> CodexUsageSummary {
+        CodexUsageSummary(
+            currentStreakDays: streak,
+            lifetimeTokens: nil,
+            longestRunningTurnSec: nil,
+            longestStreakDays: nil,
+            peakDailyTokens: nil
         )
     }
 }

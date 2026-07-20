@@ -10,13 +10,20 @@ struct RenderDesignPreviews {
     static func main() throws {
         try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
 
-        try render(name: "small", family: .systemSmall, size: CGSize(width: 158, height: 158))
-        try render(name: "medium", family: .systemMedium, size: CGSize(width: 338, height: 158))
-        try render(name: "large", family: .systemLarge, size: CGSize(width: 338, height: 354))
+        try render(name: "small", family: .systemSmall, size: CGSize(width: 158, height: 158), dashboard: previewDashboard)
+        try render(name: "medium", family: .systemMedium, size: CGSize(width: 338, height: 158), dashboard: previewDashboard)
+        try render(name: "large", family: .systemLarge, size: CGSize(width: 338, height: 354), dashboard: previewDashboard)
+        try render(name: "large-one-account", family: .systemLarge, size: CGSize(width: 338, height: 354), dashboard: oneAccountDashboard)
+        try render(name: "large-three-accounts", family: .systemLarge, size: CGSize(width: 338, height: 354), dashboard: threeAccountDashboard)
     }
 
-    private static func render(name: String, family: WidgetFamily, size: CGSize) throws {
-        let entry = LimitEntry(date: .now, dashboard: previewDashboard)
+    private static func render(
+        name: String,
+        family: WidgetFamily,
+        size: CGSize,
+        dashboard: CodexDashboardSnapshot
+    ) throws {
+        let entry = LimitEntry(date: .now, dashboard: dashboard, usageWeekOffset: 0)
         let content = ZStack {
             CodexAuroraBackground()
             CodexLimitsWidgetView(entry: entry, previewFamily: family)
@@ -49,6 +56,24 @@ struct RenderDesignPreviews {
         )
     }
 
+    private static var oneAccountDashboard: CodexDashboardSnapshot {
+        CodexDashboardSnapshot(
+            updatedAt: .now.addingTimeInterval(-11),
+            accounts: [account(id: "default", name: "Default", remaining: 46, resetHours: 136)]
+        )
+    }
+
+    private static var threeAccountDashboard: CodexDashboardSnapshot {
+        CodexDashboardSnapshot(
+            updatedAt: .now.addingTimeInterval(-11),
+            accounts: [
+                account(id: "default", name: "Default", remaining: 46, resetHours: 136),
+                account(id: "mastersoft", name: "Mastersoft", remaining: 32, resetHours: 130),
+                account(id: "studio", name: "Studio", remaining: 18, resetHours: 92)
+            ]
+        )
+    }
+
     private static func account(id: String, name: String, remaining: Int, resetHours: Int) -> CodexAccountSnapshot {
         CodexAccountSnapshot(
             id: id,
@@ -73,6 +98,7 @@ struct RenderDesignPreviews {
                     CodexResetCredit(id: "\(id)-3", title: "Full reset", expiresAt: .now.addingTimeInterval(23 * 86_400))
                 ]
             ),
+            usage: .preview,
             errorMessage: nil
         )
     }

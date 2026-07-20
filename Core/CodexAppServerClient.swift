@@ -51,12 +51,55 @@ struct CodexAppServerClient: Sendable {
         return limits
     }
 
+    func fetchUsage(
+        profile: CodexAccountProfile,
+        timeout: Duration = .seconds(5)
+    ) async throws -> CodexUsageSnapshot {
+        if let home = profile.expandedCodexHome,
+           !FileManager.default.fileExists(atPath: home) {
+            throw CodexAppServerError.invalidProfileHome(home)
+        }
+
+        let session = AppServerSession(
+            executableURL: executableURL,
+            codexHome: profile.expandedCodexHome.map(URL.init(fileURLWithPath:))
+        )
+
+        return try await withThrowingTaskGroup(of: CodexUsageSnapshot.self) { group in
+            group.addTask {
+                try await session.fetchUsage()
+            }
+            group.addTask {
+                try await Task.sleep(for: timeout)
+                throw CodexAppServerError.timedOut
+            }
+
+            defer {
+                group.cancelAll()
+                session.terminate()
+            }
+
+            guard let usage = try await group.next() else {
+                throw CodexAppServerError.noResponse
+            }
+            return usage
+        }
+    }
+
     static func decodeRateLimitResponse(_ data: Data) throws -> CodexLimitSnapshot {
         try JSONDecoder().decode(RateLimitRPCResponse.self, from: data).result.snapshot
     }
 
     static func decodeRateLimitResponseJSON(_ json: String) throws -> CodexLimitSnapshot {
         try decodeRateLimitResponse(Data(json.utf8))
+    }
+
+    static func decodeUsageResponse(_ data: Data) throws -> CodexUsageSnapshot {
+        try JSONDecoder().decode(UsageRPCResponse.self, from: data).result.snapshot
+    }
+
+    static func decodeUsageResponseJSON(_ json: String) throws -> CodexUsageSnapshot {
+        try decodeUsageResponse(Data(json.utf8))
     }
 }
 
@@ -165,6 +208,83 @@ private final class AppServerSession: @unchecked Sendable {
         throw CodexAppServerError.server(detail?.nilIfEmpty ?? "App server closed before replying")
     }
 
+    func fetchUsage() async throws -> CodexUsageSnapshot {
+        let process = Process()
+        let input = Pipe()
+        let output = Pipe()
+        let errors = Pipe()
+
+        process.executableURL = executableURL
+        process.arguments = ["-s", "read-only", "-a", "untrusted", "app-server"]
+        if let codexHome {
+            var environment = ProcessInfo.processInfo.environment
+            environment["CODEX_HOME"] = codexHome.path
+            environment["CODEX_SQLITE_HOME"] = codexHome.path
+            process.environment = environment
+        }
+        process.standardInput = input
+        process.standardOutput = output
+        process.standardError = errors
+
+        lock.withLock { self.process = process }
+        defer { terminate() }
+
+        do {
+            try process.run()
+        } catch {
+            throw CodexAppServerError.launchFailed(error.localizedDescription)
+        }
+
+        let messages: [[String: Any]] = [
+            [
+                "method": "initialize",
+                "id": 0,
+                "params": [
+                    "clientInfo": [
+                        "name": "codex_limits_widget",
+                        "title": "Codex Limits Widget",
+                        "version": "1.0.0"
+                    ]
+                ]
+            ],
+            ["method": "initialized", "params": [:]],
+            ["method": "account/usage/read", "id": 1, "params": NSNull()]
+        ]
+
+        for message in messages {
+            var data = try JSONSerialization.data(withJSONObject: message)
+            data.append(0x0A)
+            try input.fileHandleForWriting.write(contentsOf: data)
+        }
+
+        do {
+            for try await line in output.fileHandleForReading.bytes.lines {
+                try Task.checkCancellation()
+                guard let data = line.data(using: .utf8),
+                      let object = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                      let responseID = object["id"] as? Int,
+                      responseID == 1 else {
+                    continue
+                }
+
+                if let error = object["error"] as? [String: Any] {
+                    throw CodexAppServerError.server(error["message"] as? String ?? "Usage is unavailable")
+                }
+                return try CodexAppServerClient.decodeUsageResponse(data)
+            }
+        } catch is CancellationError {
+            throw CancellationError()
+        } catch let error as CodexAppServerError {
+            throw error
+        } catch {
+            throw CodexAppServerError.invalidResponse(error.localizedDescription)
+        }
+
+        let stderr = errors.fileHandleForReading.readDataToEndOfFile()
+        let detail = String(data: stderr, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        throw CodexAppServerError.server(detail?.nilIfEmpty ?? "App server closed before returning usage")
+    }
+
     func terminate() {
         let runningProcess = lock.withLock { () -> Process? in
             defer { process = nil }
@@ -255,6 +375,27 @@ private struct AccountResult: Decodable {
 private struct AccountIdentity: Decodable, Sendable {
     let email: String?
     let planType: String?
+}
+
+private struct UsageRPCResponse: Decodable {
+    let id: Int
+    let result: UsageResult
+}
+
+private struct UsageResult: Decodable {
+    let dailyUsageBuckets: [CodexUsageDay]?
+    let summary: CodexUsageSummary
+
+    var snapshot: CodexUsageSnapshot {
+        let buckets = Dictionary(
+            (dailyUsageBuckets ?? []).map { ($0.startDate, max(0, $0.tokens)) },
+            uniquingKeysWith: { _, latest in latest }
+        )
+        .map { CodexUsageDay(startDate: $0.key, tokens: $0.value) }
+        .sorted { $0.startDate < $1.startDate }
+
+        return CodexUsageSnapshot(fetchedAt: .now, dailyUsageBuckets: buckets, summary: summary)
+    }
 }
 
 private struct RateLimitRPCResponse: Decodable {

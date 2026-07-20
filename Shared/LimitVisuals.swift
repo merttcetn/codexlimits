@@ -264,3 +264,201 @@ struct EmptyLimitView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+
+struct CodexUsagePulse: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    let usage: CodexUsageSnapshot
+    let weekOffset: Int
+    var showsChart = true
+    var compact = false
+    var horizontal = false
+
+    var body: some View {
+        if let week = usage.week(offset: weekOffset) {
+            Group {
+                if horizontal, showsChart {
+                    HStack(spacing: 8) {
+                        summary(for: week)
+                            .frame(width: 138)
+                        UsageBarChart(week: week, compact: true)
+                    }
+                } else {
+                    VStack(spacing: compact ? 6 : 8) {
+                        summary(for: week)
+                        if showsChart {
+                            UsageBarChart(week: week, compact: compact)
+                        }
+                    }
+                }
+            }
+            .padding(horizontal ? 6 : compact ? 7 : 9)
+            .background(Color.black.opacity(0.11), in: RoundedRectangle(cornerRadius: compact ? 11 : 13, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: compact ? 11 : 13, style: .continuous)
+                    .stroke(CodexTheme.hairline, lineWidth: 0.7)
+            }
+            .animation(
+                reduceMotion ? nil : .spring(response: 0.34, dampingFraction: 1),
+                value: weekOffset
+            )
+        }
+    }
+
+    private func summary(for week: CodexUsageWeek) -> some View {
+        HStack(spacing: 0) {
+            UsageSummaryMetric(
+                label: week.isCurrentWeek ? "TODAY" : "WEEK TOTAL",
+                value: CodexUsageFormatting.tokenLabel(
+                    week.isCurrentWeek ? week.todayTokens : week.totalTokens
+                ),
+                compact: compact
+            )
+
+            Rectangle()
+                .fill(CodexTheme.hairline)
+                .frame(width: 1, height: compact ? 22 : 27)
+                .padding(.horizontal, compact ? 8 : 12)
+
+            UsageSummaryMetric(
+                label: week.isCurrentWeek ? "STREAK" : "PEAK DAY",
+                value: week.isCurrentWeek
+                    ? streakLabel(week.currentStreakDays)
+                    : CodexUsageFormatting.tokenLabel(week.peakTokens),
+                compact: compact
+            )
+        }
+        .padding(.horizontal, compact ? 8 : 10)
+        .padding(.vertical, horizontal ? 4 : compact ? 6 : 8)
+        .background(
+            CodexTheme.inkLifted.opacity(0.78),
+            in: RoundedRectangle(cornerRadius: compact ? 9 : 11, style: .continuous)
+        )
+        .overlay {
+            RoundedRectangle(cornerRadius: compact ? 9 : 11, style: .continuous)
+                .stroke(CodexTheme.primaryLight.opacity(0.13), lineWidth: 0.7)
+        }
+    }
+
+    private func streakLabel(_ streak: Int64?) -> String {
+        guard let streak else { return "—" }
+        return "\(streak) DAY\(streak == 1 ? "" : "S")"
+    }
+}
+
+struct CodexUsageInlineSummary: View {
+    let usage: CodexUsageSnapshot
+    let weekOffset: Int
+
+    var body: some View {
+        if let week = usage.week(offset: weekOffset) {
+            HStack(spacing: 5) {
+                inlineMetric(
+                    label: week.isCurrentWeek ? "TODAY" : "WEEK",
+                    value: CodexUsageFormatting.tokenLabel(
+                        week.isCurrentWeek ? week.todayTokens : week.totalTokens
+                    )
+                )
+                Text("/")
+                    .foregroundStyle(CodexTheme.primaryLight.opacity(0.5))
+                inlineMetric(
+                    label: week.isCurrentWeek ? "STREAK" : "PEAK",
+                    value: week.isCurrentWeek
+                        ? "\(week.currentStreakDays ?? 0)D"
+                        : CodexUsageFormatting.tokenLabel(week.peakTokens)
+                )
+            }
+            .font(CodexType.micro)
+            .tracking(0.25)
+            .foregroundStyle(CodexTheme.textSecondary)
+            .accessibilityElement(children: .combine)
+        }
+    }
+
+    private func inlineMetric(label: String, value: String) -> some View {
+        HStack(spacing: 2) {
+            Text(label)
+            Text(value)
+                .foregroundStyle(CodexTheme.primaryLight)
+        }
+    }
+}
+
+private struct UsageSummaryMetric: View {
+    let label: String
+    let value: String
+    let compact: Bool
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 1) {
+            Text(label)
+                .font(CodexType.micro)
+                .tracking(0.7)
+                .foregroundStyle(CodexTheme.textSecondary)
+            Text(value)
+                .font(compact ? CodexType.micro : CodexType.caption)
+                .monospacedDigit()
+                .foregroundStyle(CodexTheme.primaryLight)
+                .lineLimit(1)
+                .allowsTightening(true)
+                .minimumScaleFactor(0.62)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct UsageBarChart: View {
+    let week: CodexUsageWeek
+    let compact: Bool
+
+    private let calendar = Calendar.autoupdatingCurrent
+
+    var body: some View {
+        GeometryReader { proxy in
+            let spacing: CGFloat = compact ? 3 : 4
+            let barWidth = max(2, (proxy.size.width - spacing * 6) / 7)
+            HStack(alignment: .bottom, spacing: compact ? 3 : 4) {
+                ForEach(week.days) { day in
+                    let future = calendar.compare(day.date, to: .now, toGranularity: .day) == .orderedDescending
+                    let highlighted = isHighlighted(day)
+                    Capsule()
+                        .fill(barStyle(future: future, highlighted: highlighted))
+                        .frame(height: barHeight(day.tokens, availableHeight: proxy.size.height, future: future))
+                        .shadow(
+                            color: highlighted ? CodexTheme.primaryLight.opacity(0.58) : .clear,
+                            radius: highlighted ? 4 : 0
+                        )
+                        .frame(width: barWidth, alignment: .bottom)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(
+                            "\(day.date.formatted(date: .complete, time: .omitted)), \(day.tokens.formatted()) tokens"
+                        )
+                }
+            }
+        }
+        .frame(height: compact ? 25 : 34)
+    }
+
+    private func isHighlighted(_ day: CodexUsageWeek.Day) -> Bool {
+        if week.isCurrentWeek {
+            return calendar.isDateInToday(day.date)
+        }
+        return week.peakTokens > 0 && day.tokens == week.peakTokens
+    }
+
+    private func barHeight(_ tokens: Int64, availableHeight: CGFloat, future: Bool) -> CGFloat {
+        guard !future, tokens > 0, week.peakTokens > 0 else { return 3 }
+        let fraction = CGFloat(tokens) / CGFloat(week.peakTokens)
+        return max(5, availableHeight * fraction)
+    }
+
+    private func barStyle(future: Bool, highlighted: Bool) -> AnyShapeStyle {
+        if future {
+            return AnyShapeStyle(Color.white.opacity(0.07))
+        }
+        if highlighted {
+            return AnyShapeStyle(CodexTheme.signalGradient)
+        }
+        return AnyShapeStyle(CodexTheme.primaryLight.opacity(0.52))
+    }
+}

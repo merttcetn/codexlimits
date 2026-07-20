@@ -1,3 +1,4 @@
+import AppIntents
 import SwiftUI
 import WidgetKit
 
@@ -29,20 +30,31 @@ struct CodexLimitsWidget: Widget {
 struct LimitEntry: TimelineEntry {
     let date: Date
     let dashboard: CodexDashboardSnapshot?
+    let usageWeekOffset: Int
 }
 
 struct LimitTimelineProvider: TimelineProvider {
     func placeholder(in context: Context) -> LimitEntry {
-        LimitEntry(date: .now, dashboard: .preview)
+        LimitEntry(date: .now, dashboard: .preview, usageWeekOffset: 0)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (LimitEntry) -> Void) {
-        completion(LimitEntry(date: .now, dashboard: context.isPreview ? .preview : SnapshotStore.load()))
+        let dashboard: CodexDashboardSnapshot? = context.isPreview ? .preview : SnapshotStore.load()
+        completion(entry(dashboard: dashboard))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<LimitEntry>) -> Void) {
-        let entry = LimitEntry(date: .now, dashboard: SnapshotStore.load())
-        completion(Timeline(entries: [entry], policy: .after(.now.addingTimeInterval(15 * 60))))
+        let timelineEntry = entry(dashboard: SnapshotStore.load())
+        completion(Timeline(entries: [timelineEntry], policy: .after(.now.addingTimeInterval(15 * 60))))
+    }
+
+    private func entry(dashboard: CodexDashboardSnapshot?) -> LimitEntry {
+        let storedOffset = SnapshotStore.loadUsageWeekOffset()
+        return LimitEntry(
+            date: .now,
+            dashboard: dashboard,
+            usageWeekOffset: dashboard?.clampedUsageWeekOffset(storedOffset) ?? 0
+        )
     }
 }
 
@@ -62,7 +74,7 @@ struct CodexLimitsWidgetView: View {
                let firstAccount = dashboard.firstAvailableAccount {
                 switch previewFamily ?? family {
                 case .systemLarge:
-                    MultiAccountLargeView(dashboard: dashboard)
+                    MultiAccountLargeView(dashboard: dashboard, usageWeekOffset: entry.usageWeekOffset)
                 case .systemMedium where dashboard.accountsForWidget(limit: 2).filter({ $0.limits != nil }).count > 1:
                     MultiAccountMediumView(dashboard: dashboard)
                 case .systemMedium:
@@ -274,9 +286,18 @@ private struct CompactAccountCard: View {
 
 private struct MultiAccountLargeView: View {
     let dashboard: CodexDashboardSnapshot
+    let usageWeekOffset: Int
+
+    private var visibleAccounts: [CodexAccountSnapshot] {
+        dashboard.accountsForWidget(limit: 3)
+    }
+
+    private var dense: Bool {
+        dashboard.accounts.count >= 3
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: dashboard.accounts.count >= 3 ? 7 : 12) {
+        VStack(alignment: .leading, spacing: dense ? 6 : 8) {
             HStack(spacing: 9) {
                 CodexAccountGlyph(size: 30)
                 VStack(alignment: .leading, spacing: 0) {
@@ -289,7 +310,7 @@ private struct MultiAccountLargeView: View {
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 1) {
-                    Text("\(dashboard.accounts.count) CONNECTED")
+                    Text(dashboard.accounts.count > 3 ? "TOP 3 / \(dashboard.accounts.count)" : "\(dashboard.accounts.count) CONNECTED")
                         .font(CodexType.micro)
                         .tracking(0.65)
                     Text(dashboard.updatedAt, style: .relative)
@@ -298,31 +319,43 @@ private struct MultiAccountLargeView: View {
                 }
                 .foregroundStyle(CodexTheme.textSecondary)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
 
-            ForEach(dashboard.accountsForWidget(limit: 3)) { account in
-                WideAccountRow(account: account, dense: dashboard.accounts.count >= 3)
+            VStack(spacing: dense ? 5 : 6) {
+                ForEach(visibleAccounts) { account in
+                    LimitOnlyAccountRow(account: account, dense: dense)
+                }
             }
 
-            if dashboard.accounts.count > 3 {
-                Text("+\(dashboard.accounts.count - 3) MORE ACCOUNTS IN MENU BAR")
-                    .font(CodexType.micro)
-                    .tracking(0.55)
-                    .foregroundStyle(CodexTheme.textSecondary)
+            if visibleAccounts.contains(where: { $0.usage?.dailyUsageBuckets.isEmpty == false }) {
+                WidgetTokenActivityPanel(
+                    dashboard: dashboard,
+                    accounts: visibleAccounts,
+                    weekOffset: usageWeekOffset,
+                    dense: dense
+                )
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }
 
-private struct WideAccountRow: View {
+private struct LimitOnlyAccountRow: View {
     let account: CodexAccountSnapshot
     let dense: Bool
 
     var body: some View {
         CodexGlassCard(cornerRadius: 15) {
-            VStack(alignment: .leading, spacing: dense ? 5 : 8) {
+            VStack(alignment: .leading, spacing: dense ? 4 : 6) {
                 HStack(alignment: .center) {
                     AccountWidgetHeader(account: account, compact: true)
                     Spacer()
+                    if let creditCount = account.limits?.resetCredits.count, creditCount > 0 {
+                        Text(dense ? "\(creditCount) CR" : "\(creditCount) CREDITS")
+                            .font(CodexType.micro)
+                            .tracking(0.35)
+                            .foregroundStyle(CodexTheme.textSecondary)
+                    }
                     if let plan = account.limits?.normalizedPlan {
                         Text(plan.uppercased())
                             .font(CodexType.micro)
@@ -341,36 +374,162 @@ private struct WideAccountRow: View {
                                 .frame(maxWidth: .infinity)
                         }
                     }
-
-                    if !limits.resetCredits.isEmpty {
-                        HStack(spacing: 6) {
-                            SignalDot(color: CodexTheme.primaryLight)
-                            Text("\(limits.resetCredits.count) RESET CREDITS")
-                            Text("/")
-                                .foregroundStyle(CodexTheme.primaryLight.opacity(0.55))
-                            Text(expirationSummary(limits.resetCredits))
-                                .lineLimit(1)
-                        }
-                        .font(CodexType.micro)
-                        .tracking(0.3)
-                        .foregroundStyle(CodexTheme.textSecondary)
-                    }
                 } else {
                     Label(account.errorMessage ?? "No limit data", systemImage: "exclamationmark.triangle")
                         .font(CodexType.caption)
                         .foregroundStyle(CodexTheme.warning)
                 }
             }
-            .padding(dense ? 8 : 11)
+            .padding(dense ? 7 : 9)
         }
     }
+}
 
-    private func expirationSummary(_ credits: [CodexResetCredit]) -> String {
-        let values = credits.prefix(4).map { credit in
-            credit.expiresAt?.formatted(.dateTime.month(.abbreviated).day()) ?? "No expiry"
+private struct WidgetTokenActivityPanel: View {
+    let dashboard: CodexDashboardSnapshot
+    let accounts: [CodexAccountSnapshot]
+    let weekOffset: Int
+    let dense: Bool
+
+    private var accountsWithUsage: [CodexAccountSnapshot] {
+        accounts.filter { $0.usage?.dailyUsageBuckets.isEmpty == false }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: dense ? 5 : 7) {
+            HStack(spacing: 6) {
+                Image(systemName: "waveform.path.ecg")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(CodexTheme.primaryLight)
+                Text("TOKEN ACTIVITY")
+                    .font(CodexType.micro)
+                    .tracking(0.75)
+                    .foregroundStyle(CodexTheme.primaryLight)
+                Spacer()
+                WidgetUsageWeekNavigator(dashboard: dashboard, weekOffset: weekOffset)
+            }
+
+            if dense {
+                VStack(spacing: 3) {
+                    ForEach(accountsWithUsage) { account in
+                        if let usage = account.usage {
+                            HStack(spacing: 6) {
+                                Text(account.displayName)
+                                    .font(CodexType.micro)
+                                    .lineLimit(1)
+                                    .frame(width: 72, alignment: .leading)
+                                Rectangle()
+                                    .fill(CodexTheme.hairline)
+                                    .frame(width: 1, height: 10)
+                                CodexUsageInlineSummary(usage: usage, weekOffset: weekOffset)
+                                Spacer(minLength: 0)
+                            }
+                        }
+                    }
+                }
+            } else {
+                HStack(alignment: .top, spacing: 6) {
+                    ForEach(accountsWithUsage.prefix(2)) { account in
+                        if let usage = account.usage {
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack {
+                                    Text(account.displayName)
+                                        .font(CodexType.micro)
+                                        .tracking(0.25)
+                                        .lineLimit(1)
+                                    Spacer()
+                                    Text("7D")
+                                        .font(CodexType.micro)
+                                        .foregroundStyle(CodexTheme.textSecondary)
+                                }
+                                CodexUsagePulse(usage: usage, weekOffset: weekOffset, compact: true)
+                            }
+                            .frame(maxWidth: .infinity)
+                        }
+                    }
+                }
+            }
         }
-        let suffix = credits.count > values.count ? " · +\(credits.count - values.count)" : ""
-        return "EXPIRES " + values.joined(separator: " · ") + suffix
+        .padding(dense ? 7 : 8)
+        .background {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [Color.black.opacity(0.2), CodexTheme.primary.opacity(0.1)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: 15, style: .continuous)
+                .stroke(CodexTheme.primaryLight.opacity(0.2), lineWidth: 0.8)
+        }
+    }
+}
+
+private struct WidgetUsageWeekNavigator: View {
+    let dashboard: CodexDashboardSnapshot
+    let weekOffset: Int
+
+    var body: some View {
+        if let week = dashboard.usageWeek(offset: weekOffset) {
+            HStack(spacing: 4) {
+                Button(intent: PreviousUsageWeekIntent()) {
+                    Image(systemName: "chevron.left")
+                        .frame(width: 16, height: 16)
+                        .background(Color.white.opacity(0.08), in: Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(weekOffset <= dashboard.earliestUsageWeekOffset())
+                .accessibilityLabel("Previous usage week")
+
+                Text(week.rangeLabel())
+                    .font(CodexType.micro)
+                    .tracking(0.25)
+                    .monospacedDigit()
+                    .lineLimit(1)
+
+                Button(intent: NextUsageWeekIntent()) {
+                    Image(systemName: "chevron.right")
+                        .frame(width: 16, height: 16)
+                        .background(Color.white.opacity(0.08), in: Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(weekOffset >= 0)
+                .accessibilityLabel("Next usage week")
+            }
+        }
+    }
+}
+
+struct PreviousUsageWeekIntent: AppIntent {
+    static let title: LocalizedStringResource = "Previous Codex Usage Week"
+    static let description = IntentDescription("Shows the previous week of Codex token activity.")
+    static let openAppWhenRun = false
+
+    func perform() async throws -> some IntentResult {
+        let dashboard = SnapshotStore.load()
+        let current = SnapshotStore.loadUsageWeekOffset()
+        let next = dashboard?.clampedUsageWeekOffset(current - 1) ?? 0
+        SnapshotStore.saveUsageWeekOffset(next)
+        WidgetCenter.shared.reloadTimelines(ofKind: "CodexLimitsWidget")
+        return .result()
+    }
+}
+
+struct NextUsageWeekIntent: AppIntent {
+    static let title: LocalizedStringResource = "Next Codex Usage Week"
+    static let description = IntentDescription("Shows the next week of Codex token activity.")
+    static let openAppWhenRun = false
+
+    func perform() async throws -> some IntentResult {
+        let dashboard = SnapshotStore.load()
+        let current = SnapshotStore.loadUsageWeekOffset()
+        let next = dashboard?.clampedUsageWeekOffset(current + 1) ?? 0
+        SnapshotStore.saveUsageWeekOffset(next)
+        WidgetCenter.shared.reloadTimelines(ofKind: "CodexLimitsWidget")
+        return .result()
     }
 }
 

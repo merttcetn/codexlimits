@@ -12,8 +12,23 @@ struct MenuPanelView: View {
             if let dashboard = model.dashboard, !dashboard.accounts.isEmpty {
                 ScrollView {
                     LazyVStack(spacing: 12) {
+                        DashboardSectionLabel(
+                            title: "USAGE LIMITS",
+                            detail: "LIVE CAPACITY",
+                            systemImage: "gauge.with.dots.needle.50percent"
+                        )
+
                         ForEach(dashboard.accounts) { account in
                             AccountMenuCard(account: account)
+                        }
+
+                        if dashboard.hasUsage {
+                            MenuUsagePulseSection(
+                                dashboard: dashboard,
+                                weekOffset: model.usageWeekOffset,
+                                moveWeek: model.moveUsageWeek
+                            )
+                            .padding(.top, 4)
                         }
                     }
                     .padding(.vertical, 2)
@@ -39,6 +54,7 @@ struct MenuPanelView: View {
         .foregroundStyle(CodexTheme.textPrimary)
         .tint(CodexTheme.primaryLight)
         .background(CodexAuroraBackground())
+        .onAppear { model.syncUsageWeekSelection() }
     }
 
     private var header: some View {
@@ -178,6 +194,165 @@ private struct AccountMenuCard: View {
             }
             .padding(14)
         }
+    }
+}
+
+private struct DashboardSectionLabel: View {
+    let title: String
+    let detail: String
+    let systemImage: String
+
+    var body: some View {
+        HStack(spacing: 7) {
+            Image(systemName: systemImage)
+                .font(.system(size: 10, weight: .semibold))
+                .foregroundStyle(CodexTheme.primaryLight)
+            Text(title)
+                .font(CodexType.micro)
+                .tracking(0.95)
+                .foregroundStyle(CodexTheme.textPrimary)
+            Rectangle()
+                .fill(CodexTheme.hairline)
+                .frame(height: 1)
+            Text(detail)
+                .font(CodexType.micro)
+                .tracking(0.45)
+                .foregroundStyle(CodexTheme.textSecondary)
+        }
+        .padding(.horizontal, 2)
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct MenuUsagePulseSection: View {
+    let dashboard: CodexDashboardSnapshot
+    let weekOffset: Int
+    let moveWeek: (Int) -> Void
+
+    var body: some View {
+        VStack(spacing: 10) {
+            MenuUsageWeekNavigator(
+                dashboard: dashboard,
+                weekOffset: weekOffset,
+                moveWeek: moveWeek
+            )
+
+            ForEach(dashboard.accounts.filter { $0.usage?.dailyUsageBuckets.isEmpty == false }) { account in
+                if let usage = account.usage {
+                    CodexGlassCard(cornerRadius: 15) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 7) {
+                                CodexAccountGlyph(size: 21)
+                                Text(account.displayName)
+                                    .font(CodexType.body)
+                                    .lineLimit(1)
+                                Spacer()
+                                Text("7 DAYS")
+                                    .font(CodexType.micro)
+                                    .tracking(0.65)
+                                    .foregroundStyle(CodexTheme.textSecondary)
+                            }
+
+                            CodexUsagePulse(usage: usage, weekOffset: weekOffset)
+                        }
+                        .padding(11)
+                    }
+                    .overlay(alignment: .leading) {
+                        Capsule()
+                            .fill(CodexTheme.signalGradient)
+                            .frame(width: 2, height: 42)
+                            .padding(.leading, 1)
+                    }
+                }
+            }
+        }
+    }
+}
+
+private struct MenuUsageWeekNavigator: View {
+    let dashboard: CodexDashboardSnapshot
+    let weekOffset: Int
+    let moveWeek: (Int) -> Void
+
+    var body: some View {
+        if let week = dashboard.usageWeek(offset: weekOffset) {
+            HStack(spacing: 9) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(CodexTheme.primary.opacity(0.22))
+                    Image(systemName: "waveform.path.ecg")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundStyle(CodexTheme.primaryLight)
+                }
+                .frame(width: 30, height: 30)
+
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("TOKEN ACTIVITY")
+                        .font(CodexType.micro)
+                        .tracking(0.85)
+                        .foregroundStyle(CodexTheme.primaryLight)
+                    Text("WEEKLY PULSE")
+                        .font(CodexType.micro)
+                        .tracking(0.35)
+                        .foregroundStyle(CodexTheme.textSecondary)
+                }
+
+                Spacer()
+
+                Button { moveWeek(-1) } label: {
+                    Image(systemName: "chevron.left")
+                }
+                .help("Previous usage week")
+                .accessibilityLabel("Previous usage week")
+                .disabled(weekOffset <= dashboard.earliestUsageWeekOffset())
+
+                Text(week.rangeLabel())
+                    .font(CodexType.micro)
+                    .tracking(0.45)
+                    .monospacedDigit()
+                    .frame(minWidth: 82)
+                    .accessibilityLabel("Usage week \(week.rangeLabel())")
+
+                Button { moveWeek(1) } label: {
+                    Image(systemName: "chevron.right")
+                }
+                .help("Next usage week")
+                .accessibilityLabel("Next usage week")
+                .disabled(weekOffset >= 0)
+            }
+            .buttonStyle(UsageNavigationButtonStyle())
+            .foregroundStyle(CodexTheme.textSecondary)
+            .padding(9)
+            .background {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [CodexTheme.primary.opacity(0.13), Color.black.opacity(0.14)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+            }
+            .overlay {
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(CodexTheme.primaryLight.opacity(0.19), lineWidth: 0.8)
+            }
+        }
+    }
+}
+
+private struct UsageNavigationButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 9, weight: .bold))
+            .frame(width: 23, height: 23)
+            .background(
+                configuration.isPressed ? CodexTheme.primary.opacity(0.34) : Color.white.opacity(0.075),
+                in: Circle()
+            )
+            .foregroundStyle(configuration.isPressed ? CodexTheme.textPrimary : CodexTheme.primaryLight)
+            .scaleEffect(configuration.isPressed ? 0.94 : 1)
+            .animation(.spring(response: 0.22, dampingFraction: 1), value: configuration.isPressed)
     }
 }
 

@@ -21,6 +21,7 @@ final class AppModel: ObservableObject {
         }
     }
     @Published private(set) var launchAtLoginEnabled: Bool
+    @Published private(set) var usageWeekOffset: Int
 
     private static let codexPathKey = "codex-executable-path"
     private static let refreshIntervalKey = "refresh-interval-minutes"
@@ -28,7 +29,9 @@ final class AppModel: ObservableObject {
     private var monitoringTask: Task<Void, Never>?
 
     init() {
-        dashboard = SnapshotStore.load()
+        let savedDashboard = SnapshotStore.load()
+        dashboard = savedDashboard
+        usageWeekOffset = savedDashboard?.clampedUsageWeekOffset(SnapshotStore.loadUsageWeekOffset()) ?? 0
         if let data = UserDefaults.standard.data(forKey: Self.profilesKey),
            let savedProfiles = try? JSONDecoder().decode([CodexAccountProfile].self, from: data),
            !savedProfiles.isEmpty {
@@ -82,11 +85,22 @@ final class AppModel: ObservableObject {
             let previousAccounts = Dictionary(uniqueKeysWithValues: (dashboard?.accounts ?? []).map { ($0.id, $0) })
             let outcomes = await withTaskGroup(of: AccountRefreshOutcome.self, returning: [AccountRefreshOutcome].self) { group in
                 for profile in activeProfiles {
+                    let previousUsage = previousAccounts[profile.id]?.usage
                     group.addTask {
+                        async let usage: CodexUsageSnapshot? = try? await client.fetchUsage(profile: profile)
                         do {
+                            let account = try await client.fetchAccount(profile: profile)
+                            let resolvedUsage = await usage ?? previousUsage
                             return AccountRefreshOutcome(
                                 profile: profile,
-                                snapshot: try await client.fetchAccount(profile: profile),
+                                snapshot: CodexAccountSnapshot(
+                                    id: account.id,
+                                    name: account.name,
+                                    email: account.email,
+                                    limits: account.limits,
+                                    usage: resolvedUsage,
+                                    errorMessage: nil
+                                ),
                                 errorMessage: nil
                             )
                         } catch {
@@ -126,6 +140,7 @@ final class AppModel: ObservableObject {
                     name: profile.name,
                     email: previous?.email,
                     limits: previous?.limits,
+                    usage: previous?.usage,
                     errorMessage: outcome.errorMessage
                 )
             }
@@ -133,6 +148,11 @@ final class AppModel: ObservableObject {
             let freshDashboard = CodexDashboardSnapshot(updatedAt: .now, accounts: accounts)
             try SnapshotStore.save(freshDashboard)
             dashboard = freshDashboard
+            let clampedOffset = freshDashboard.clampedUsageWeekOffset(usageWeekOffset)
+            if clampedOffset != usageWeekOffset {
+                usageWeekOffset = clampedOffset
+                SnapshotStore.saveUsageWeekOffset(clampedOffset)
+            }
             if accounts.allSatisfy({ $0.limits == nil }) {
                 errorMessage = "No configured Codex account could be refreshed."
             }
@@ -180,8 +200,30 @@ final class AppModel: ObservableObject {
             )
             try? SnapshotStore.save(updated)
             self.dashboard = updated
+            let clampedOffset = updated.clampedUsageWeekOffset(usageWeekOffset)
+            usageWeekOffset = clampedOffset
+            SnapshotStore.saveUsageWeekOffset(clampedOffset)
             WidgetCenter.shared.reloadTimelines(ofKind: CodexLimitsWidgetKind.value)
         }
+    }
+
+    func moveUsageWeek(by delta: Int) {
+        guard let dashboard, dashboard.hasUsage else { return }
+        let nextOffset = dashboard.clampedUsageWeekOffset(usageWeekOffset + delta)
+        guard nextOffset != usageWeekOffset else { return }
+        usageWeekOffset = nextOffset
+        SnapshotStore.saveUsageWeekOffset(nextOffset)
+        WidgetCenter.shared.reloadTimelines(ofKind: CodexLimitsWidgetKind.value)
+    }
+
+    func syncUsageWeekSelection() {
+        guard let dashboard else {
+            usageWeekOffset = 0
+            return
+        }
+        let storedOffset = dashboard.clampedUsageWeekOffset(SnapshotStore.loadUsageWeekOffset())
+        guard storedOffset != usageWeekOffset else { return }
+        usageWeekOffset = storedOffset
     }
 
     func setLaunchAtLogin(_ enabled: Bool) {

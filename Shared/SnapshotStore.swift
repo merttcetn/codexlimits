@@ -4,6 +4,7 @@ enum SnapshotStore {
     static let appGroupIdentifier = "group.com.mertcetin.codexlimits"
     private static let dashboardKey = "codex-dashboard-snapshot-v2"
     private static let legacySnapshotKey = "codex-limit-snapshot-v1"
+    private static let usageWeekOffsetKey = "codex-usage-week-offset-v1"
 
     private static var defaults: UserDefaults {
         UserDefaults(suiteName: appGroupIdentifier) ?? .standard
@@ -37,5 +38,13 @@ enum SnapshotStore {
     static func save(_ dashboard: CodexDashboardSnapshot) throws {
         let data = try JSONEncoder().encode(dashboard)
         defaults.set(data, forKey: dashboardKey)
+    }
+
+    static func loadUsageWeekOffset() -> Int {
+        min(0, defaults.integer(forKey: usageWeekOffsetKey))
+    }
+
+    static func saveUsageWeekOffset(_ offset: Int) {
+        defaults.set(min(0, offset), forKey: usageWeekOffsetKey)
     }
 }
