@@ -3,7 +3,6 @@ import SwiftUI
 
 struct MenuPanelView: View {
     @EnvironmentObject private var model: AppModel
-    @Environment(\.openSettings) private var openSettings
 
     var body: some View {
         VStack(alignment: .leading, spacing: 15) {
@@ -54,6 +53,7 @@ struct MenuPanelView: View {
         .foregroundStyle(CodexTheme.textPrimary)
         .tint(CodexTheme.primaryLight)
         .background(CodexAuroraBackground())
+        .background(MenuPanelWindowObserver())
         .onAppear { model.syncUsageWeekSelection() }
     }
 
@@ -113,11 +113,59 @@ struct MenuPanelView: View {
 
             Spacer()
 
-            Button("Accounts") { openSettings() }
+            SettingsLink {
+                Text("Settings")
+            }
                 .buttonStyle(CodexTextButtonStyle())
             Button("Quit") { NSApplication.shared.terminate(nil) }
                 .buttonStyle(CodexTextButtonStyle())
         }
+    }
+}
+
+private struct MenuPanelWindowObserver: NSViewRepresentable {
+    func makeNSView(context: Context) -> MenuPanelWindowObservationView {
+        MenuPanelWindowObservationView(frame: .zero)
+    }
+
+    func updateNSView(_ nsView: MenuPanelWindowObservationView, context: Context) {}
+}
+
+private final class MenuPanelWindowObservationView: NSView {
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+
+        NotificationCenter.default.removeObserver(
+            self,
+            name: NSWindow.didBecomeKeyNotification,
+            object: nil
+        )
+
+        guard let window else { return }
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(menuPanelDidBecomeKey),
+            name: NSWindow.didBecomeKeyNotification,
+            object: window
+        )
+
+        if window.isKeyWindow {
+            keepSystemMenuBarVisible()
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func menuPanelDidBecomeKey() {
+        keepSystemMenuBarVisible()
+    }
+
+    private func keepSystemMenuBarVisible() {
+        NSApplication.shared.presentationOptions = []
+        NSApplication.shared.activate()
+        NSMenu.setMenuBarVisible(true)
     }
 }
 

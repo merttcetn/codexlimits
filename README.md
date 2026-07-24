@@ -36,7 +36,7 @@ mkdir -p ~/.codex-work
 CODEX_HOME=~/.codex-work codex login
 ```
 
-Repeat with a different directory for each additional account. Then open **Codex Limits → Accounts… → Add Account Folder…** and select each directory. The app starts an isolated app-server process per profile and refreshes the accounts concurrently.
+Repeat with a different directory for each additional account. Then open **Codex Limits → Settings → Add Account Folder…** and select each directory. The app starts an isolated app-server process per profile and refreshes the accounts concurrently.
 
 The menu-bar panel shows every configured account. Medium widgets show up to two accounts together, and the large widget shows up to three accounts with their usage windows and reset-credit expirations. When more accounts are available than a widget can display, it prioritizes the accounts with the highest remaining capacity, using each account's most constrained limit window as the deciding signal.
 

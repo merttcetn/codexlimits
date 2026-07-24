@@ -119,6 +119,7 @@ struct SettingsView: View {
         .frame(width: 680, height: 500)
         .font(CodexType.body)
         .tint(CodexTheme.primary)
+        .background(SettingsWindowConfigurator())
     }
 
     private func chooseAccountFolder() {
@@ -132,5 +133,25 @@ struct SettingsView: View {
 
         guard panel.runModal() == .OK, let url = panel.url else { return }
         model.addProfile(codexHome: url)
+    }
+}
+
+private struct SettingsWindowConfigurator: NSViewRepresentable {
+    func makeNSView(context: Context) -> SettingsWindowConfigurationView {
+        SettingsWindowConfigurationView(frame: .zero)
+    }
+
+    func updateNSView(_ nsView: SettingsWindowConfigurationView, context: Context) {}
+}
+
+private final class SettingsWindowConfigurationView: NSView {
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+
+        guard let window else { return }
+        window.collectionBehavior.insert(.moveToActiveSpace)
+        window.collectionBehavior.insert(.fullScreenAuxiliary)
+        NSApplication.shared.activate()
+        window.makeKeyAndOrderFront(nil)
     }
 }
